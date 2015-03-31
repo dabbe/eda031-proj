@@ -1,5 +1,6 @@
 /* myserver.cc: sample server program */
 #include "server.h"
+#include "protocol.h"
 #include "connection.h"
 #include "connectionclosedexception.h"
 
@@ -62,12 +63,19 @@ int main(int argc, char* argv[]){
 		auto conn = server.waitForActivity();
 		if (conn != nullptr) {
 			try {
-				int nbr = readNumber(conn);
+//				int nbr = readNumber(conn);
+				struct Protocol protocol;
+				cout << "First byte is: ";
+				unsigned char a = conn->read();
+				if(a == protocol.COM_CREATE_NG){
+					cout << "Create newsgroup!!" << endl;
+				}
+
 //				cout << "Hello" << endl;
 //				cout << nbr << endl;
 //				cout <<  "Bye" << endl;
 
-cout << "nbr " << nbr << endl << endl;
+//				cout << "nbr " << nbr << endl << endl;
 
 				string result;
 /*				if (nbr > 0) {
@@ -75,7 +83,7 @@ cout << "nbr " << nbr << endl << endl;
 				} else if (nbr == 0) {
 					result = "zero";
 				} else {*/
-					result = "negative";
+					result = protocol.ANS_CREATE_NG;
 //				}
 				writeString(conn, result);
 			} catch (ConnectionClosedException&) {
