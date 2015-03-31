@@ -19,6 +19,12 @@ int readNumber(const shared_ptr<Connection>& conn) {
 	unsigned char byte2 = conn->read();
 	unsigned char byte3 = conn->read();
 	unsigned char byte4 = conn->read();
+
+	cout << "b1: " << byte1 << endl;
+	cout << "b2: " << byte2 << endl;
+	cout << "b3: " << byte3 << endl;
+	cout << "b4: " << byte4 << endl;
+
 	return (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
 }
 
@@ -61,14 +67,16 @@ int main(int argc, char* argv[]){
 //				cout << nbr << endl;
 //				cout <<  "Bye" << endl;
 
+cout << "nbr " << nbr << endl << endl;
+
 				string result;
-				if (nbr > 0) {
+/*				if (nbr > 0) {
 					result = "positive";
 				} else if (nbr == 0) {
 					result = "zero";
-				} else {
+				} else {*/
 					result = "negative";
-				}
+//				}
 				writeString(conn, result);
 			} catch (ConnectionClosedException&) {
 				server.deregisterConnection(conn);
