@@ -21,23 +21,22 @@ int read_number(const shared_ptr<Connection>& conn) {
 	unsigned char byte2 = conn->read();
 	unsigned char byte3 = conn->read();
 	unsigned char byte4 = conn->read();
-
-	cout << "b1: " << byte1 << endl;
-	cout << "b2: " << byte2 << endl;
-	cout << "b3: " << byte3 << endl;
-	cout << "b4: " << byte4 << endl;
-
 	return (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
 }
 
 /*
  * Send a string to a client.
  */
-void writeString(const shared_ptr<Connection>& conn, const string& s) {
+void write_string(const shared_ptr<Connection>& conn, const string& s) {
 	for (char c : s) {
 		conn->write(c);
 	}
 	conn->write('$');
+}
+
+void write_number(const shared_ptr<Connection>& conn,  const int& i){
+	conn->write(Protocol::PAR_NUM);
+	conn->write(i);
 }
 
 string read_string(const shared_ptr<Connection>& conn){
@@ -46,7 +45,6 @@ string read_string(const shared_ptr<Connection>& conn){
 	cout << "n is: " << n << endl;
 	for(int i = 0; i != n; ++i){
 		unsigned char c = conn->read();
-		cout << "conn read is: " << (int)c << endl;
 		ss << c;
 	}
 	return ss.str();
@@ -82,7 +80,11 @@ int main(int argc, char* argv[]){
 				unsigned char a = conn->read();
 				switch(a){
 				case Protocol::COM_LIST_NG:
-//					cout << "list
+					if(conn->read() != Protocol::COM_END){
+						//exit or disc
+					}
+					write_number(conn, Protocol::ANS_LIST_NG);
+					//get list
 				break;
 				case Protocol::COM_CREATE_NG:
 					cout << "creating newsgroup" << endl;
@@ -91,13 +93,46 @@ int main(int argc, char* argv[]){
 					}
 					cout << "string is" + read_string(conn) << endl;
 					if(conn->read() != Protocol::COM_END){
+						// exit or disconnect client
 					}
+					//create group
 				break;
 				case Protocol::COM_DELETE_NG:
-				break;
+				{
+					if(conn->read() != Protocol::PAR_NUM){
+							//exit or disc
+					}
+					int del_number = read_number(conn);
+					if(conn->read() != Protocol::COM_END){
+					}
+					write_number(conn, Protocol::ANS_DELETE_NG);
+					//delete group
+					break;
+				}
 				case Protocol::COM_LIST_ART:
+				{
+					if(conn->read() != Protocol::PAR_NUM){
+						//exit or disc
+					}
+					int list_number = read_number(conn);
+					if(conn->read() != Protocol::COM_END){
+					}
+					write_number(conn, Protocol::ANS_LIST_ART);
+					// list articles
+				}
 				break;
 				case Protocol::COM_CREATE_ART:
+					if(conn->read() != Protocol::PAR_NUM){}
+					int id = read_number(conn);
+					if(conn->read() != Protocol::PAR_STRING){}
+					string title = read_string(conn);
+					if(conn->read() != Protocol::PAR_STRING){}
+					string author = read_string(conn);
+					if(conn->read() != Protocol::PAR_STRING){}
+					string text = read_string(conn);
+					if(conn->read() != Protocol::COM_END){}
+					write_number(conn, Protocol::ANS_CREATE_ART);
+
 				break;
 				case Protocol::COM_DELETE_ART:
 				break;
@@ -113,15 +148,15 @@ int main(int argc, char* argv[]){
 
 //				cout << "nbr " << nbr << endl << endl;
 
-				string result;
+//				string result;
 /*				if (nbr > 0) {
 					result = "positive";
 				} else if (nbr == 0) {
 					result = "zero";
 				} else {*/
-					result = Protocol::ANS_CREATE_NG;
+//					result = Protocol::ANS_CREATE_NG;
 //				}
-				writeString(conn, result);
+//				writeString(conn, result);
 			} catch (ConnectionClosedException&) {
 				server.deregisterConnection(conn);
 				cout << "Client closed connection" << endl;
