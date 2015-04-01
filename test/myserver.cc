@@ -85,6 +85,8 @@ int main(int argc, char* argv[]){
 					}
 					write_number(conn, Protocol::ANS_LIST_NG);
 					//get list
+					write_number(conn, Protocol::ANS_END);
+
 				break;
 				case Protocol::COM_CREATE_NG:
 					cout << "creating newsgroup" << endl;
@@ -95,7 +97,9 @@ int main(int argc, char* argv[]){
 					if(conn->read() != Protocol::COM_END){
 						// exit or disconnect client
 					}
+					write_number(conn, Protocol::ANS_CREATE_NG);
 					//create group
+					write_number(conn, Protocol::ANS_END);
 				break;
 				case Protocol::COM_DELETE_NG:
 				{
@@ -107,6 +111,8 @@ int main(int argc, char* argv[]){
 					}
 					write_number(conn, Protocol::ANS_DELETE_NG);
 					//delete group
+					write_number(conn, Protocol::ANS_END);
+
 					break;
 				}
 				case Protocol::COM_LIST_ART:
@@ -119,9 +125,12 @@ int main(int argc, char* argv[]){
 					}
 					write_number(conn, Protocol::ANS_LIST_ART);
 					// list articles
+					write_number(conn, Protocol::ANS_END);
+
 				}
 				break;
 				case Protocol::COM_CREATE_ART:
+				{
 					if(conn->read() != Protocol::PAR_NUM){}
 					int id = read_number(conn);
 					if(conn->read() != Protocol::PAR_STRING){}
@@ -132,12 +141,33 @@ int main(int argc, char* argv[]){
 					string text = read_string(conn);
 					if(conn->read() != Protocol::COM_END){}
 					write_number(conn, Protocol::ANS_CREATE_ART);
+					//create shiet
+					write_number(conn, Protocol::ANS_END);
 
+				}
 				break;
 				case Protocol::COM_DELETE_ART:
+				{
+					if(conn->read() != Protocol::PAR_NUM){}
+					int group_nbr = read_number(conn);
+					if(conn->read() != Protocol::PAR_NUM){}
+					int article_nbr = read_number(conn);
+					if(conn->read() != Protocol::COM_END){}
+					write_number(conn, Protocol::ANS_DELETE_ART);
+					write_number(conn, Protocol::ANS_END);
+				}
 				break;
 				case Protocol::COM_GET_ART:
-				break;
+				{
+					if(conn->read() != Protocol::PAR_NUM){}
+					int group_id = read_number(conn);
+					if(conn->read() != Protocol::PAR_NUM){}
+					int article_id = read_number(conn);
+					write_number(conn, Protocol::ANS_GET_ART);
+					// do all sorts of stuff
+					write_number(conn, Protocol::ANS_END);
+					break;
+				}
 				case Protocol::COM_END:
 				break;
 				}
