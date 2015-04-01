@@ -4,7 +4,6 @@
 #include "connection.h"
 #include "connectionclosedexception.h"
 
-#include <sstream>
 #include <memory>
 #include <iostream>
 #include <string>
@@ -16,7 +15,7 @@ using namespace std;
 /*
  * Read an integer from a client.
  */
-int read_number(const shared_ptr<Connection>& conn) {
+int readNumber(const shared_ptr<Connection>& conn) {
 	unsigned char byte1 = conn->read();
 	unsigned char byte2 = conn->read();
 	unsigned char byte3 = conn->read();
@@ -38,18 +37,6 @@ void writeString(const shared_ptr<Connection>& conn, const string& s) {
 		conn->write(c);
 	}
 	conn->write('$');
-}
-
-string read_string(const shared_ptr<Connection>& conn){
-	unsigned char n = read_number(conn);
-	stringstream ss;
-	cout << "n is: " << n << endl;
-	for(int i = 0; i != n; ++i){
-		unsigned char c = conn->read();
-		cout << "conn read is: " << (int)c << endl;
-		ss << c;
-	}
-	return ss.str();
 }
 
 int main(int argc, char* argv[]){
@@ -77,34 +64,14 @@ int main(int argc, char* argv[]){
 		if (conn != nullptr) {
 			try {
 //				int nbr = readNumber(conn);
-//				struct Protocol protocol;
+				struct Protocol protocol;
 				cout << "First byte is: ";
-				unsigned char a = conn->read();
-				switch(a){
-				case Protocol::COM_LIST_NG:
-//					cout << "list
-				break;
-				case Protocol::COM_CREATE_NG:
-					cout << "creating newsgroup" << endl;
-					if(conn->read() != Protocol::PAR_STRING){
-						//exit / disconnect client
-					}
-					cout << "string is" + read_string(conn) << endl;
-					if(conn->read() != Protocol::COM_END){
-					}
-				break;
-				case Protocol::COM_DELETE_NG:
-				break;
-				case Protocol::COM_LIST_ART:
-				break;
-				case Protocol::COM_CREATE_ART:
-				break;
-				case Protocol::COM_DELETE_ART:
-				break;
-				case Protocol::COM_GET_ART:
-				break;
-				case Protocol::COM_END:
-				break;
+				unsigned char comm = conn->read();
+				switch(comm){
+				case 
+				}
+				if(a == protocol.COM_CREATE_NG){
+					cout << "Create newsgroup!!" << endl;
 				}
 
 //				cout << "Hello" << endl;
@@ -119,7 +86,7 @@ int main(int argc, char* argv[]){
 				} else if (nbr == 0) {
 					result = "zero";
 				} else {*/
-					result = Protocol::ANS_CREATE_NG;
+					result = protocol.ANS_CREATE_NG;
 //				}
 				writeString(conn, result);
 			} catch (ConnectionClosedException&) {
