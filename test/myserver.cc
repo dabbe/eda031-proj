@@ -44,19 +44,21 @@ int main(int argc, char* argv[]){
 			try {
 				unsigned char command = conn->read();
 				switch(command){
-				case Protocol::COM_LIST_NG:
+				case Protocol::COM_LIST_NG: {
 					if(conn->read() != Protocol::COM_END){
 						//exit or disc
 						cout << "ngt weird" << endl;
 					}
 					conn->write(Protocol::ANS_LIST_NG);
+
 					write_number(conn, ngs.size());
 					for(Newsgroup ng : ngs){
 						write_number(conn, ng.get_id());
 						write_string(conn, ng.get_name());
 					}
 					conn->write(Protocol::ANS_END);
-				break;
+					break;
+				}
 				case Protocol::COM_CREATE_NG:
 				{
 					if(conn->read() != Protocol::PAR_STRING){
@@ -73,7 +75,11 @@ int main(int argc, char* argv[]){
 						conn->write(Protocol::ANS_NAK);
 						conn->write(Protocol::ERR_NG_ALREADY_EXISTS);
 					} else{
-						ngs.push_back(Newsgroup(ngs.size(), ng));
+						unsigned int id = 0;
+						for(Newsgroup ng : ngs){
+							id = max(id, ng.get_id());
+						}
+						ngs.push_back(Newsgroup(++id, ng));
 						conn->write(Protocol::ANS_ACK);
 					}
 					conn->write(Protocol::ANS_END);
@@ -153,7 +159,11 @@ int main(int argc, char* argv[]){
 					auto it = find_if(ngs.begin(), ngs.end(), [id](Newsgroup& x){return x.get_id() == id;});
 					if(it != ngs.end()){
 						Newsgroup& group = *it;
-						it->get_articles().push_back(Article(title, author, text, it->get_articles().size()));
+						unsigned int id = 0;
+						for(Article a : it->get_articles()){
+							id = max(id, a.get_id());
+						}
+						it->get_articles().push_back(Article(title, author, text, ++id));
 						conn->write(Protocol::ANS_ACK);
 					} else{
 						conn->write(Protocol::ANS_NAK);

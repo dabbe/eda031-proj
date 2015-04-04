@@ -1,37 +1,19 @@
 /* myclient.cc: sample client program */
 #include "connection.h"
 #include "connectionclosedexception.h"
+#include "messagehandler.cc"
 
 #include <iostream>
+#include <memory>
 #include <string>
+#include <sstream>
 #include <stdexcept>
 #include <cstdlib>
 
 using namespace std;
 
-/*
- * Send an integer to the server as four bytes.
- */
-void write_number(const Connection& conn, int value) {
-	conn.write((value >> 24) & 0xFF);
-	conn.write((value >> 16) & 0xFF);
-	conn.write((value >> 8)	 & 0xFF);
-	conn.write(value & 0xFF);
-}
-
-/*
- * Read a string from the server.
- */
-string read_string(const Connection& conn) {
-	string s;
-	char ch;
-	while ((ch = conn.read()) != '$') {
-		s += ch;
-	}
-	return s;
-}
-
 void list_alternatives(){
+	cout << endl << endl;
 	cout << "Choose an alternative:" << endl;
 	cout << "1. List newsgroup" << endl;
 	cout << "2. Create newsgroup" << endl;
@@ -68,14 +50,69 @@ int main(int argc, char* argv[]) {
 		try {
 			cout << endl;
 			switch(alternative){
-			case 1:
+			case 1: {
 				cout << "List newsgroup:" << endl;
+				conn.write(Protocol::COM_LIST_NG);
+				conn.write(Protocol::COM_END);
+
+				if(conn.read() != Protocol::ANS_LIST_NG){
+					cout << "konstitttt";
+				}
+				if(conn.read() != Protocol::PAR_NUM){
+					cout << "ngt konstigt123";
+				}
+				unsigned int nbr = read_n(conn);
+				for(unsigned int i = 0; i != nbr; ++i){
+					if(conn.read() != Protocol::PAR_NUM){
+						cout << "lide konstigt";
+					}
+					unsigned int id = read_n(conn);
+					if(conn.read() != Protocol::PAR_STRING){
+						cout << "konstet";
+					}
+					string s = read_s(conn);
+					cout << id << ". " + s << endl;
+				}
+				if(conn.read() != Protocol::ANS_END){
+					cout << "konstit1";
+				}
+				cout << endl << endl;
 			break;
-			case 2:
+			}
+			case 2: {
 				cout << "Create newsgroup:" << endl;
-			break;
+				cout << "Type a group name: ";
+				conn.write(Protocol::COM_CREATE_NG);
+				string name;
+				cin.ignore();
+				getline(cin, name);
+				cout << "name is " + name << endl << endl;
+				write_s(conn, name);
+				conn.write(Protocol::COM_END);
+
+				if(conn.read() != Protocol::ANS_CREATE_NG){
+					cout << "ngt weird1";
+				}
+				unsigned char c = conn.read();
+				switch(c){
+				case Protocol::ANS_NAK:
+					if(conn.read() != Protocol::ERR_NG_ALREADY_EXISTS){
+						cout << "nagat fel";
+					}
+				case Protocol::ANS_ACK:
+				break;
+				default:
+					cout << "wadafuk";
+				break;
+				}
+				if(conn.read() != Protocol::ANS_END){
+					cout << "hmm???";
+				}
+				break;
+			}
 			case 3:
 				cout << "Delete newsgroup:" << endl;
+				
 			break;
 			case 4:
 				cout << "List articles in newsgroup:" << endl;
