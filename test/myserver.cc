@@ -5,6 +5,7 @@
 #include "connection.h"
 #include "connectionclosedexception.h"
 #include "newsgroup.h"
+#include "messagehandler.cc"
 
 #include <algorithm>
 #include <sstream>
@@ -15,48 +16,6 @@
 #include <cstdlib>
 
 using namespace std;
-
-/*
- * Read an integer from a client.
- */
-int read_number(const shared_ptr<Connection>& conn) {
-	unsigned char byte1 = conn->read();
-	unsigned char byte2 = conn->read();
-	unsigned char byte3 = conn->read();
-	unsigned char byte4 = conn->read();
-	return (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
-}
-
-void write_nbrs(const shared_ptr<Connection>& conn, const unsigned int& i){
-	conn->write((i >> 24) & 0xFF);
-	conn->write((i >> 16) & 0xFF);
-	conn->write((i >> 8) & 0xFF);
-	conn->write(i & 0xFF);
-}
-
-void write_number(const shared_ptr<Connection>& conn, const unsigned int& i){
-	conn->write(Protocol::PAR_NUM);
-	write_nbrs(conn, i);
-}
-
-void write_string(const shared_ptr<Connection>& conn, const string& s){
-	conn->write(Protocol::PAR_STRING);
-	write_nbrs(conn, s.size());
-	for(char c : s){
-		conn->write(c);
-	}
-}
-
-
-string read_string(const shared_ptr<Connection>& conn){
-	unsigned char n = read_number(conn);
-	stringstream ss;
-	for(int i = 0; i != n; ++i){
-		unsigned char c = conn->read();
-		ss << c;
-	}
-	return ss.str();
-}
 
 int main(int argc, char* argv[]){
 	if (argc != 2) {
@@ -123,11 +82,11 @@ int main(int argc, char* argv[]){
 				case Protocol::COM_DELETE_NG:
 				{
 					if(conn->read() != Protocol::PAR_NUM){
-						cout << "ngt konstigt";
+						cout << "ngt konstigt1";
 					}
 					unsigned int nbr = read_number(conn);
 					if(conn->read() != Protocol::COM_END){
-						cout << "ngt konstigt";
+						cout << "ngt konstigt2";
 					}
 					conn->write(Protocol::ANS_DELETE_NG);
 					auto it = remove_if(ngs.begin(), ngs.end(), [nbr](Newsgroup& x){return x.get_id() == nbr;});
@@ -172,19 +131,19 @@ int main(int argc, char* argv[]){
 				case Protocol::COM_CREATE_ART:
 				{
 					if(conn->read() != Protocol::PAR_NUM){
-						cout << "konstigt";
+						cout << "konstigt3";
 					}
 					unsigned int id = read_number(conn);
 					if(conn->read() != Protocol::PAR_STRING){
-						cout << "konstigt";
+						cout << "konstigt4";
 					}
 					string title = read_string(conn);
 					if(conn->read() != Protocol::PAR_STRING){
-						cout << "konstigt";
+						cout << "konstigt5";
 					}
 					string author = read_string(conn);
 					if(conn->read() != Protocol::PAR_STRING){
-						cout << "konstigt";
+						cout << "konstigt6";
 					}
 					string text = read_string(conn);
 					if(conn->read() != Protocol::COM_END){
@@ -207,15 +166,15 @@ int main(int argc, char* argv[]){
 				case Protocol::COM_DELETE_ART:
 				{
 					if(conn->read() != Protocol::PAR_NUM){
-						cout << "konstigt";
+						cout << "konstigt7";
 					}
 					unsigned int group_nbr = read_number(conn);
 					if(conn->read() != Protocol::PAR_NUM){
-						cout << "konstigt";
+						cout << "konstigt8";
 					}
 					unsigned int article_nbr = read_number(conn);
 					if(conn->read() != Protocol::COM_END){
-						cout << "konstigt";
+						cout << "konstigt9";
 					}
 					conn->write(Protocol::ANS_DELETE_ART);
 					auto it = find_if(ngs.begin(), ngs.end(), [group_nbr](Newsgroup& ng){return ng.get_id() == group_nbr;});
@@ -238,11 +197,11 @@ int main(int argc, char* argv[]){
 				case Protocol::COM_GET_ART:
 				{
 					if(conn->read() != Protocol::PAR_NUM){
-						cout << "konstigt";
+						cout << "konstigt10";
 					}
 					unsigned int group_id = read_number(conn);
 					if(conn->read() != Protocol::PAR_NUM){
-						cout << "konstigt";
+						cout << "konstigt11";
 					}
 					unsigned int article_id = read_number(conn);
 					conn->write(Protocol::ANS_GET_ART);
