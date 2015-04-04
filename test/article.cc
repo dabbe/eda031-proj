@@ -3,7 +3,7 @@
 
 using namespace std;
 
-Article::Article(){}
+Article::Article(string& t, string& a, string& txt, unsigned int i) : title(t), author(a), text(txt), id(i){}
 
 string& Article::get_title(){
 	return title;
@@ -14,7 +14,7 @@ string& Article::get_author(){
 string& Article::get_text(){
 	return text;
 }
-int& Article::get_id(){
+unsigned int& Article::get_id(){
 	return id;
 }
 

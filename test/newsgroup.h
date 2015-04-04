@@ -1,12 +1,18 @@
 #include <string>
+#include <vector>
+
+#include "article.h"
+
 using namespace std;
 
 class Newsgroup{
 public:
-	Newsgroup(int& id, string& name);
-	int& get_id();
+	Newsgroup(unsigned int id, string& name);
+	unsigned int& get_id();
 	string& get_name();
+	vector<Article>& get_articles();
 private:
-	int id;
+	vector<Article> articles;
+	unsigned int id;
 	string name;
 };
