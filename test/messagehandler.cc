@@ -1,6 +1,8 @@
 #include "connection.h"
 #include "protocol.h"
 
+#include <string>
+#include <sstream>
 using namespace std;
 
 unsigned int read_number(const shared_ptr<Connection>& conn){
@@ -22,7 +24,7 @@ void write_number(const shared_ptr<Connection>& conn, const unsigned int& i){
 	write_nbrs(conn, i);
 }
 
-void read_string(const shared_ptr<Connection>& conn){
+string read_string(const shared_ptr<Connection>& conn){
 	unsigned int n = read_number(conn);
 	stringstream ss;
 	for(unsigned int i = 0; i != n; ++i){
