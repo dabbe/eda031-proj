@@ -86,7 +86,6 @@ int main(int argc, char* argv[]) {
 				string name;
 				cin.ignore();
 				getline(cin, name);
-				cout << "name is " + name << endl << endl;
 				write_s(conn, name);
 				conn.write(Protocol::COM_END);
 
@@ -97,9 +96,12 @@ int main(int argc, char* argv[]) {
 				switch(c){
 				case Protocol::ANS_NAK:
 					if(conn.read() != Protocol::ERR_NG_ALREADY_EXISTS){
-						cout << "nagat fel";
+						cout << "ngt felililil";
+					} else{
+						cout << "Group already exists";
 					}
 				case Protocol::ANS_ACK:
+					cout << "Group created" << endl;
 				break;
 				default:
 					cout << "wadafuk";
@@ -110,22 +112,238 @@ int main(int argc, char* argv[]) {
 				}
 				break;
 			}
-			case 3:
+			case 3:{
 				cout << "Delete newsgroup:" << endl;
-				
-			break;
-			case 4:
+				cout << "Type the group id you want to remove: ";
+				conn.write(Protocol::COM_DELETE_NG);
+				unsigned int id;
+				cin >> id;
+				write_n(conn, id);
+				conn.write(Protocol::COM_END);
+
+				if(conn.read() != Protocol::ANS_DELETE_NG){
+					cout << "smth weird";
+				}
+				unsigned char c = conn.read();
+				switch(c){
+				case Protocol::ANS_NAK:
+					if(conn.read() != Protocol::ERR_NG_DOES_NOT_EXIST){
+						cout << "nagat fel";
+					} else{
+						cout << "Group does not exist" << endl;
+					}
+				case Protocol::ANS_ACK:
+					cout << "Group deleted" << endl;
+				break;
+				default:
+					cout << "wadafuk";
+				break;
+				}
+				if(conn.read() != Protocol::ANS_END){
+					cout << "hmm???";
+				}
+				break;
+			}
+			case 4:{
 				cout << "List articles in newsgroup:" << endl;
-			break;
-			case 5:
+				cout << "What group?: ";
+				conn.write(Protocol::COM_LIST_ART);
+				unsigned int id;
+				cin >> id;
+				write_n(conn, id);
+				conn.write(Protocol::COM_END);
+
+				if(conn.read() != Protocol::ANS_LIST_ART){
+					cout << "konstigtgt";
+				}
+				unsigned char c = conn.read();
+				switch(c){
+				case Protocol::ANS_NAK:
+					if(conn.read() != Protocol::ERR_NG_DOES_NOT_EXIST){
+						cout << "nagat fel";
+					} else{
+						cout << "Group does not exist" << endl;
+					}
+				break;
+				case Protocol::ANS_ACK:{
+					if(conn.read() != Protocol::PAR_NUM){
+						cout << "ngt fel";
+					}
+					unsigned int n = read_n(conn);
+					for(unsigned int i = 0; i != n; ++i){
+						if(conn.read() != Protocol::PAR_NUM){
+							cout << "lide konstigt";
+						}
+						unsigned int id = read_n(conn);
+						if(conn.read() != Protocol::PAR_STRING){
+							cout << "konstet";
+						}
+						string s = read_s(conn);
+						cout << id << ". " + s << endl;
+					}
+				break;
+				}
+				default:
+					cout << "wadafuk";
+				break;
+				}
+				if(conn.read() != Protocol::ANS_END){
+					cout << "hmm???";
+				}
+				break;
+			}
+			case 5:{
+				conn.write(Protocol::COM_CREATE_ART);
 				cout << "Create article:" << endl;
+				cout << "ID?: ";
+				unsigned int id;
+				cin >> id;
+				write_n(conn, id);
+
+				cout << "Title?: ";
+				string title;
+				cin.ignore();
+				getline(cin, title);
+				write_s(conn, title);
+
+				cout << "Author?:";
+				string author;
+				getline(cin, author);
+				write_s(conn, author);
+
+				cout << "Text?:";
+				string text;
+				getline(cin, text);
+				write_s(conn, text);
+
+				conn.write(Protocol::COM_END);
+
+				if(conn.read() != Protocol::ANS_CREATE_ART){
+					cout << "konstigt";
+				}
+				unsigned int com = conn.read();
+				switch(com){
+				case Protocol::ANS_NAK:
+					if(conn.read() != Protocol::ERR_NG_DOES_NOT_EXIST){
+						cout << "???";
+					} else{
+						cout << "Newsgroup does not exist" << endl;
+					}
+				break;
+				case Protocol::ANS_ACK:
+				break;
+				default:
+					cout << "oh you done wrong";
+				break;
+				}
+				if(conn.read() != Protocol::ANS_END){
+					cout << "FEL";
+				}
 			break;
-			case 6:
+			}
+			case 6:{
 				cout << "Delete article:" << endl;
+				cout << "What group id?: ";
+				conn.write(Protocol::COM_DELETE_ART);
+				unsigned int group_id;
+				cin >> group_id;
+				write_n(conn, group_id);
+
+				cout << "What article id?: ";
+				unsigned int art_id;
+				cin >> art_id;
+				write_n(conn, art_id);
+
+				conn.write(Protocol::COM_END);
+
+				if(conn.read() != Protocol::ANS_DELETE_ART){
+					cout << "smth konstit";
+				}
+				unsigned int comm = conn.read();
+				switch(comm){
+				case Protocol::ANS_ACK:
+					cout << "Article deleted" << endl;
+					break;
+				case Protocol::ANS_NAK:{
+					unsigned int err = conn.read();
+					switch(err){
+						case Protocol::ERR_NG_DOES_NOT_EXIST:
+							cout << "Group does not exist" << endl;
+						break;
+						case Protocol::ERR_ART_DOES_NOT_EXIST:
+							cout << "Article does not exist!" << endl;
+						break;
+						default:
+							cout << "now sometjhing is weird!";
+						break;
+					}
+				break;
+				}
+				default:
+					cout << "WRONG! " << comm;
+				}
+				if(conn.read() != Protocol::ANS_END){
+					cout << "should be smth eleze here";
+				}
 			break;
-			case 7:
+			}
+			case 7:{
 				cout << "Get article:" << endl;
+				cout << "Group id?: ";
+				conn.write(Protocol::COM_GET_ART);
+				unsigned int group_id;
+				cin >> group_id;
+				write_n(conn, group_id);
+
+				cout << "Article id?: ";
+				unsigned int art_id;
+				cin >> art_id;
+				write_n(conn, art_id);
+
+				conn.write(Protocol::COM_END);
+
+				if(conn.read() != Protocol::ANS_GET_ART){
+					cout << "Nagat ar fel";
+				}
+				unsigned int com = conn.read();
+				switch(com){
+				case Protocol::ANS_ACK:{
+					if(conn.read() != Protocol::PAR_STRING){
+						cout << "should be str";
+					}
+					cout << "Title: " + read_s(conn) << endl;
+					if(conn.read() != Protocol::PAR_STRING){
+						cout << "should be str1";
+					}
+					cout << "Author: " + read_s(conn) << endl;
+					if(conn.read() != Protocol::PAR_STRING){
+						cout << "should be str2";
+					}
+					cout << "Text: " + read_s(conn) << endl;
+				break;}
+				case Protocol::ANS_NAK:{
+					unsigned int err = conn.read();
+					switch(err){
+						case Protocol::ERR_NG_DOES_NOT_EXIST:
+							cout << "Group does not exist" << endl;
+						break;
+						case Protocol::ERR_ART_DOES_NOT_EXIST:
+							cout << "Article does not exist!" << endl;
+						break;
+						default:
+							cout << "now sometjhing is weird!";
+						break;
+					}
+				break;
+				}
+				default:
+					cout << "weiiiird";
+				}
+			if(conn.read() != Protocol::ANS_END){
+				cout << "dafuq";
+			}
 			break;
+			}
 			default:
 				cout << "Command " << alternative <<" does not exist" << endl;
 			}
