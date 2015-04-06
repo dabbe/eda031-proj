@@ -44,9 +44,9 @@ int main(int argc, char* argv[]) {
 		exit(1);
 	}
 
-	list_alternatives();
 	int alternative;
 	while (1) {
+		list_alternatives();
 		cin >> alternative;
 		if(cin.fail()){
 			cout << "Command " << alternative <<" does not exist" << endl;
@@ -386,15 +386,15 @@ int main(int argc, char* argv[]) {
 						cout << "Command " << alternative <<" does not exist" << endl;
 					}
 				}
-		/*write_number(conn, nbr);
-		string reply = read_string(conn);
-		cout << " " << reply << endl;*/
-		list_alternatives();
-		catch (ConnectionClosedException&) {
-			cout << "No reply from server. Exiting." << endl;
-			exit(1);
+			}
+			catch (ConnectionClosedException&) {
+				cout << "No reply from server. Exiting." << endl;
+				exit(1);
+			}
+			/*write_number(conn, nbr);
+			string reply = read_string(conn);
+			cout << " " << reply << endl;*/
 		}
 	}
-}
 }
 
