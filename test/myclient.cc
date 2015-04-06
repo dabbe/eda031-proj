@@ -47,6 +47,10 @@ int main(int argc, char* argv[]) {
 	list_alternatives();
 	int alternative;
 	while (cin >> alternative) {
+		if(cin.fail){
+					cout << "Wrong input format" << endl;
+					break;
+				}
 		try {
 			cout << endl;
 			switch(alternative){
@@ -118,6 +122,10 @@ int main(int argc, char* argv[]) {
 				conn.write(Protocol::COM_DELETE_NG);
 				unsigned int id;
 				cin >> id;
+				if(cin.fail){
+					cout << "Wrong input format" << endl;
+					break;
+				}
 				write_n(conn, id);
 				conn.write(Protocol::COM_END);
 
@@ -146,10 +154,14 @@ int main(int argc, char* argv[]) {
 			}
 			case 4:{
 				cout << "List articles in newsgroup:" << endl;
-				cout << "What group?: ";
+				cout << "NewsgroupId?: ";
 				conn.write(Protocol::COM_LIST_ART);
 				unsigned int id;
 				cin >> id;
+				if(cin.fail){
+					cout << "Wrong input format" << endl;
+					break;
+				}
 				write_n(conn, id);
 				conn.write(Protocol::COM_END);
 
@@ -198,6 +210,10 @@ int main(int argc, char* argv[]) {
 				cout << "ID?: ";
 				unsigned int id;
 				cin >> id;
+				if(cin.fail){
+					cout << "Wrong input format" << endl;
+					break;
+				}
 				write_n(conn, id);
 
 				cout << "Title?: ";
@@ -247,11 +263,19 @@ int main(int argc, char* argv[]) {
 				conn.write(Protocol::COM_DELETE_ART);
 				unsigned int group_id;
 				cin >> group_id;
+				if(cin.fail){
+					cout << "Wrong input format" << endl;
+					break;
+				}
 				write_n(conn, group_id);
 
 				cout << "What article id?: ";
 				unsigned int art_id;
 				cin >> art_id;
+				if(cin.fail){
+					cout << "Wrong input format" << endl;
+					break;
+				}
 				write_n(conn, art_id);
 
 				conn.write(Protocol::COM_END);
@@ -293,11 +317,19 @@ int main(int argc, char* argv[]) {
 				conn.write(Protocol::COM_GET_ART);
 				unsigned int group_id;
 				cin >> group_id;
+				if(cin.fail){
+					cout << "Wrong input format" << endl;
+					break;
+				}
 				write_n(conn, group_id);
 
 				cout << "Article id?: ";
 				unsigned int art_id;
 				cin >> art_id;
+				if(cin.fail){
+					cout << "Wrong input format" << endl;
+					break;
+				}
 				write_n(conn, art_id);
 
 				conn.write(Protocol::COM_END);
