@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
 	list_alternatives();
 	int alternative;
 	while (cin >> alternative) {
-		if(cin.fail){
+		if(cin.fail()){
 					cout << "Wrong input format" << endl;
 					break;
 				}
@@ -60,19 +60,23 @@ int main(int argc, char* argv[]) {
 				conn.write(Protocol::COM_END);
 
 				if(conn.read() != Protocol::ANS_LIST_NG){
-					cout << "konstitttt";
+					cout << "Server Error" << endl;
+					break;
 				}
 				if(conn.read() != Protocol::PAR_NUM){
-					cout << "ngt konstigt123";
+					cout << "Server Error" << endl;
+					break;
 				}
 				unsigned int nbr = read_n(conn);
 				for(unsigned int i = 0; i != nbr; ++i){
 					if(conn.read() != Protocol::PAR_NUM){
-						cout << "lide konstigt";
+						cout << "Server Error" << endl;
+						break;
 					}
 					unsigned int id = read_n(conn);
 					if(conn.read() != Protocol::PAR_STRING){
-						cout << "konstet";
+						cout << "Server Error" << endl;
+						break;
 					}
 					string s = read_s(conn);
 					cout << id << ". " + s << endl;
@@ -122,7 +126,7 @@ int main(int argc, char* argv[]) {
 				conn.write(Protocol::COM_DELETE_NG);
 				unsigned int id;
 				cin >> id;
-				if(cin.fail){
+				if(cin.fail()){
 					cout << "Wrong input format" << endl;
 					break;
 				}
@@ -158,7 +162,7 @@ int main(int argc, char* argv[]) {
 				conn.write(Protocol::COM_LIST_ART);
 				unsigned int id;
 				cin >> id;
-				if(cin.fail){
+				if(cin.fail()){
 					cout << "Wrong input format" << endl;
 					break;
 				}
@@ -210,7 +214,7 @@ int main(int argc, char* argv[]) {
 				cout << "ID?: ";
 				unsigned int id;
 				cin >> id;
-				if(cin.fail){
+				if(cin.fail()){
 					cout << "Wrong input format" << endl;
 					break;
 				}
@@ -263,7 +267,7 @@ int main(int argc, char* argv[]) {
 				conn.write(Protocol::COM_DELETE_ART);
 				unsigned int group_id;
 				cin >> group_id;
-				if(cin.fail){
+				if(cin.fail()){
 					cout << "Wrong input format" << endl;
 					break;
 				}
@@ -272,7 +276,7 @@ int main(int argc, char* argv[]) {
 				cout << "What article id?: ";
 				unsigned int art_id;
 				cin >> art_id;
-				if(cin.fail){
+				if(cin.fail()){
 					cout << "Wrong input format" << endl;
 					break;
 				}
@@ -317,7 +321,7 @@ int main(int argc, char* argv[]) {
 				conn.write(Protocol::COM_GET_ART);
 				unsigned int group_id;
 				cin >> group_id;
-				if(cin.fail){
+				if(cin.fail()){
 					cout << "Wrong input format" << endl;
 					break;
 				}
@@ -326,7 +330,7 @@ int main(int argc, char* argv[]) {
 				cout << "Article id?: ";
 				unsigned int art_id;
 				cin >> art_id;
-				if(cin.fail){
+				if(cin.fail()){
 					cout << "Wrong input format" << endl;
 					break;
 				}
