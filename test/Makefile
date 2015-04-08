@@ -19,13 +19,14 @@ LDFLAGS   = -g -L..
 LDLIBS = -lclientserver
 
 # Targets
-PROGS = myserver myclient
+PROGS = fileserver memoryserver myclient
 
 all: $(PROGS)
 
 # Targets rely on implicit rules for compiling and linking
 # The dependency on libclientserver.a is not defined.
-myserver: myserver.o article.o newsgroup.o
+fileserver: fileserver.o article.o newsgroup.o
+memoryserver: memoryserver.o article.o newsgroup.o
 myclient: myclient.o
 
 # Phony targets
