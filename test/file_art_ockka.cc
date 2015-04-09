@@ -56,6 +56,3 @@ int main(){
 	createArt("Wow", "Oscar" , "Shit has happend", 1);
 	readArt(1);
 }
-
-
-
