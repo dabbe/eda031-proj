@@ -37,7 +37,8 @@ int main(int argc, char* argv[]){
 		exit(1);
 	}
 	vector<Newsgroup> ngs;
-
+	unsigned int ngcounter = 0;
+	
 	while (true) {
 		auto conn = server.waitForActivity();
 		if (conn != nullptr) {
@@ -75,11 +76,7 @@ int main(int argc, char* argv[]){
 						conn->write(Protocol::ANS_NAK);
 						conn->write(Protocol::ERR_NG_ALREADY_EXISTS);
 					} else{
-						unsigned int id = 0;
-						for(Newsgroup ng : ngs){
-							id = max(id, ng.get_id());
-						}
-						ngs.push_back(Newsgroup(++id, ng));
+						ngs.push_back(Newsgroup(++ngcounter, ng));
 						conn->write(Protocol::ANS_ACK);
 					}
 					conn->write(Protocol::ANS_END);
@@ -158,12 +155,7 @@ int main(int argc, char* argv[]){
 					conn->write(Protocol::ANS_CREATE_ART);
 					auto it = find_if(ngs.begin(), ngs.end(), [id](Newsgroup& x){return x.get_id() == id;});
 					if(it != ngs.end()){
-						Newsgroup& group = *it;
-						unsigned int id = 0;
-						for(Article a : it->get_articles()){
-							id = max(id, a.get_id());
-						}
-						it->get_articles().push_back(Article(title, author, text, ++id));
+						it->get_articles().push_back(Article(title, author, text, ++(it->get_artcounter())));
 						conn->write(Protocol::ANS_ACK);
 					} else{
 						conn->write(Protocol::ANS_NAK);
