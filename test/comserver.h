@@ -1,8 +1,7 @@
 #ifndef COMSERVER_H
 #define COMSERVER_H
 
-#include "../connection.h"
-#include "../server.h"
+#include "server.h"
 #include "newsgroup.h"
 
 #include <algorithm>
@@ -19,10 +18,11 @@ class ComServer : private Server {
 		ComServer(int port, std::vector<Newsgroup> grps);
 		void handleActivity();
 		void protocol_err(std::string err);
-		Newsgroup get_grp(int id);
+		std::vector<Newsgroup> get_grps();
+		bool isInitialized() const;
 	private:
 		std::vector<Newsgroup> ngs;
-		unsigned int ngcounter = 0;
+		unsigned int ngcounter;
 };
 
 #endif
