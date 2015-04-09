@@ -1,0 +1,75 @@
+#include <iostream>
+#include <fstream>
+#include "coding.h"
+#include <dirent.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
+using namespace std;
+
+void process_directory(string directory);
+void process_file(string file);
+void process_entity(struct dirent* entity);
+
+void process_directory(string directory){
+	string h = getenv("HOME");
+	string home = h + "/newsgroups/";
+	string dirToOpen = home + directory;
+    auto dir = opendir(dirToOpen.c_str());
+    string path = dirToOpen + "/";
+    if(NULL == dir){
+        return;
+    }
+
+    auto entity = readdir(dir);
+    while(entity != NULL){
+        process_entity(entity);
+        entity = readdir(dir);
+    }
+
+    path.resize(path.length() - 1 - directory.length());
+    closedir(dir);
+}
+
+void process_entity(struct dirent* entity)
+{
+    /*if(entity->d_type == DT_DIR){
+        if(entity->d_name[0] == '.'){
+            return;
+        }
+        process_directory(string(entity->d_name));
+        return;
+    }*/
+
+    if(entity->d_type == DT_REG){
+        process_file(string(entity->d_name));
+        return;
+    }
+}
+
+void process_file(string file){
+	cout << "Artikel med id: " << file.c_str() << endl;
+}
+
+void create_newsgroup(const char* s){
+	string h = getenv("HOME");
+	string home = h + "/newsgroups/";
+	int s_one = mkdir(home.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	int s_two = mkdir((home + s).c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	cout << "Status for creating root-newsgroup folder: " << s_one << endl;
+	cout << "Status for creating newsgroup folder: " << s_two << endl;
+}
+
+int main(int argc, char* argv[]){
+	if(argc != 3){
+		cout << "Need argument for folder name" << endl;
+		exit(1);
+	}
+	if(*argv[2] == 'w'){
+		cout << "Write newsgroup" << endl;
+		create_newsgroup(argv[1]);
+	} else{
+		cout << "List articles:" << endl;
+		process_directory(argv[1]);
+	}
+}
