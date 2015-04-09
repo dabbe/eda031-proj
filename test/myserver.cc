@@ -17,6 +17,10 @@
 
 using namespace std;
 
+void protocol_err(){
+	cerr << "Protocol error, shutting down connection" << endl;
+}
+
 int main(int argc, char* argv[]){
 	if (argc != 2) {
 		cerr << "Usage: myserver port-number" << endl;
@@ -47,8 +51,8 @@ int main(int argc, char* argv[]){
 				switch(command){
 				case Protocol::COM_LIST_NG: {
 					if(conn->read() != Protocol::COM_END){
-						//exit or disc
-						cout << "ngt weird" << endl;
+						protocol_err();
+						server.deregisterConnection(conn);
 					}
 					conn->write(Protocol::ANS_LIST_NG);
 
@@ -63,13 +67,13 @@ int main(int argc, char* argv[]){
 				case Protocol::COM_CREATE_NG:
 				{
 					if(conn->read() != Protocol::PAR_STRING){
-						//exit / disconnect client
-						cout << "weird 2";
+						protocol_err();
+						server.deregisterConnection(conn);
 					}
 					string ng = read_string(conn);
 					if(conn->read() != Protocol::COM_END){
-						// exit or disconnect client
-						cout << "weird 1";
+						protocol_err();
+						server.deregisterConnection(conn);
 					}
 					conn->write(Protocol::ANS_CREATE_NG);
 					if(find_if(ngs.begin(), ngs.end(), [ng](Newsgroup& x){return x.get_name() == ng;}) != ngs.end()){
@@ -85,11 +89,13 @@ int main(int argc, char* argv[]){
 				case Protocol::COM_DELETE_NG:
 				{
 					if(conn->read() != Protocol::PAR_NUM){
-						cout << "ngt konstigt1";
+						protocol_err();
+						server.deregisterConnection(conn);
 					}
 					unsigned int nbr = read_number(conn);
 					if(conn->read() != Protocol::COM_END){
-						cout << "ngt konstigt2";
+						protocol_err();
+						server.deregisterConnection(conn);
 					}
 					conn->write(Protocol::ANS_DELETE_NG);
 					auto it = remove_if(ngs.begin(), ngs.end(), [nbr](Newsgroup& x){return x.get_id() == nbr;});
@@ -106,12 +112,13 @@ int main(int argc, char* argv[]){
 				case Protocol::COM_LIST_ART:
 				{
 					if(conn->read() != Protocol::PAR_NUM){
-						//exit or disc
-						cout << "weiridid";
+						protocol_err();
+						server.deregisterConnection(conn);
 					}
 					unsigned int group_id = read_number(conn);
 					if(conn->read() != Protocol::COM_END){
-						cout << "weird09";
+						protocol_err();
+						server.deregisterConnection(conn);
 					}
 					conn->write(Protocol::ANS_LIST_ART);
 					auto it = find_if(ngs.begin(),  ngs.end(), [group_id](Newsgroup& x){return x.get_id() == group_id;});
@@ -134,23 +141,28 @@ int main(int argc, char* argv[]){
 				case Protocol::COM_CREATE_ART:
 				{
 					if(conn->read() != Protocol::PAR_NUM){
-						cout << "konstigt3";
+						protocol_err();
+						server.deregisterConnection(conn);
 					}
 					unsigned int id = read_number(conn);
 					if(conn->read() != Protocol::PAR_STRING){
-						cout << "konstigt4";
+						protocol_err();
+						server.deregisterConnection(conn);
 					}
 					string title = read_string(conn);
 					if(conn->read() != Protocol::PAR_STRING){
-						cout << "konstigt5";
+						protocol_err();
+						server.deregisterConnection(conn);
 					}
 					string author = read_string(conn);
 					if(conn->read() != Protocol::PAR_STRING){
-						cout << "konstigt6";
+						protocol_err();
+						server.deregisterConnection(conn);
 					}
 					string text = read_string(conn);
 					if(conn->read() != Protocol::COM_END){
-						cout << "konstigt";
+						protocol_err();
+						server.deregisterConnection(conn);
 					}
 					conn->write(Protocol::ANS_CREATE_ART);
 					auto it = find_if(ngs.begin(), ngs.end(), [id](Newsgroup& x){return x.get_id() == id;});
@@ -168,15 +180,18 @@ int main(int argc, char* argv[]){
 				case Protocol::COM_DELETE_ART:
 				{
 					if(conn->read() != Protocol::PAR_NUM){
-						cout << "konstigt7";
+						protocol_err();
+						server.deregisterConnection(conn);
 					}
 					unsigned int group_nbr = read_number(conn);
 					if(conn->read() != Protocol::PAR_NUM){
-						cout << "konstigt8";
+						protocol_err();
+						server.deregisterConnection(conn);
 					}
 					unsigned int article_nbr = read_number(conn);
 					if(conn->read() != Protocol::COM_END){
-						cout << "konstigt9";
+						protocol_err();
+						server.deregisterConnection(conn);
 					}
 					conn->write(Protocol::ANS_DELETE_ART);
 					auto it = find_if(ngs.begin(), ngs.end(), [group_nbr](Newsgroup& ng){return ng.get_id() == group_nbr;});
@@ -199,11 +214,13 @@ int main(int argc, char* argv[]){
 				case Protocol::COM_GET_ART:
 				{
 					if(conn->read() != Protocol::PAR_NUM){
-						cout << "konstigt10";
+						protocol_err();
+						server.deregisterConnection(conn);	
 					}
 					unsigned int group_id = read_number(conn);
 					if(conn->read() != Protocol::PAR_NUM){
-						cout << "konstigt11";
+						protocol_err();
+						server.deregisterConnection(conn);
 					}
 					unsigned int article_id = read_number(conn);
 					conn->write(Protocol::ANS_GET_ART);
