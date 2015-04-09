@@ -29,8 +29,11 @@ int main(int argc, char* argv[]){
 		exit(1);
 	}
 	vector<Newsgroup> ngs;
-	unsigned int ngcounter = 0;
 
+	while (true) {
+		cs.handleActivity();
+		ngs = cs.get_grps();
+	}
 
 
 	return 0;
