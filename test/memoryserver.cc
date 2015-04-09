@@ -1,8 +1,4 @@
 #include "comserver.h"
-#include "protocol.h"
-#include "connection.h"
-#include "connectionclosedexception.h"
-#include "messagehandler.cc"
 
 #include <algorithm>
 #include <sstream>

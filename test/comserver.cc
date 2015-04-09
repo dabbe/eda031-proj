@@ -1,7 +1,5 @@
-#include "../server.h"
-#include "../protocol.h"
-#include "../connection.h"
-#include "../connectionclosedexception.h"
+#include "protocol.h"
+#include "connectionclosedexception.h"
 #include "messagehandler.cc"
 #include "comserver.h"
 
@@ -17,9 +15,9 @@
 
 using namespace std;
 
-ComServer::ComServer(int port) : Server(port) {}
+ComServer::ComServer(int port) : Server(port), ngcounter(0) {}
 
-ComServer::ComServer(int port, vector<Newsgroup> grps) : Server(port), ngs(grps) {}
+ComServer::ComServer(int port, vector<Newsgroup> grps) : Server(port), ngs(grps), ngcounter(0) {}
 
 void ComServer::handleActivity() {
 	auto conn = waitForActivity();
@@ -238,4 +236,16 @@ void ComServer::handleActivity() {
 		registerConnection(conn);
 		cout << "New client connects" << endl;
 	}	
+}
+
+void ComServer::protocol_err(string err) {
+	cerr << err << endl;
+}
+
+vector<Newsgroup> ComServer::get_grps() {
+	return ngs;
+}
+
+bool ComServer::isInitialized() const {
+	return isReady();
 }
