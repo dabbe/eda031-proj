@@ -7,8 +7,19 @@
 #include <string>
 #include <stdexcept>
 #include <cstdlib>
+#include <fstream>
+#include <sys/stat.h>
+#include <sys/types.h>
 
-
+void createArt(string title, string author, string text, int art_nbr, string path){
+	ofstream outfile;
+	cout << path << endl;
+	outfile.open (path + to_string(art_nbr));
+	outfile << "#" + title;
+	outfile << "#" + author;
+	outfile << "#" + text;
+  	outfile.close();
+}
 
 void create_newsgroup(const char* s){
 	string h = getenv("HOME");
@@ -39,15 +50,24 @@ int main(int argc, char* argv[]){
 		cerr << "Server initialization error." << endl;
 		exit(1);
 	}
-
+	string h = getenv("HOME");
+	
 
 	while (true) {
 		cs.handleActivity();
 		ngs = cs.get_grps();
 		int ns = cs.last_modified();
+
 		if (ns != -1) {
+			string home = h + "/newsgroups/";
 			auto it = find_if(ngs.begin(), ngs.end(), [&ns](Newsgroup& n) {return n.get_id() == ns;});
-		} 
+			create_newsgroup(it->get_name().c_str());
+			auto articles = it->get_articles();
+			home += it->get_name() + "/";
+			for(Article a : articles){
+				createArt(a.get_title(), a.get_author(), a.get_text(), a.get_id(), home);
+			}
+		}
 		
 
 		// Skriv grupperna till fil
