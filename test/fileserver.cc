@@ -21,17 +21,21 @@ int main(int argc, char* argv[]){
 		cerr << "Wrong port number. " << e.what() << endl;
 		exit(1);
 	}
-
+	vector<Newsgroup> ngs; // LÄSA IN ALLt
 	ComServer cs(port);
 
 	if (!cs.isInitialized()) {
 		cerr << "Server initialization error." << endl;
 		exit(1);
 	}
-	vector<Newsgroup> ngs;
+
 
 	while (true) {
 		cs.handleActivity();
+		ngs = cs.get_grps();
+
+
+		// Skriv grupperna till fil
 	}
 
 
