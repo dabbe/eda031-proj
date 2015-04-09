@@ -19,9 +19,11 @@ class ComServer : private Server {
 		void handleActivity();
 		void protocol_err(std::string err);
 		std::vector<Newsgroup> get_grps();
+		int last_modified();
 		bool isInitialized() const;
 	private:
 		std::vector<Newsgroup> ngs;
+		int last_changed;
 		unsigned int ngcounter;
 };
 

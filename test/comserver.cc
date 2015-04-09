@@ -20,6 +20,7 @@ ComServer::ComServer(int port) : Server(port), ngcounter(0) {}
 ComServer::ComServer(int port, vector<Newsgroup> grps) : Server(port), ngs(grps), ngcounter(0) {}
 
 void ComServer::handleActivity() {
+	last_changed = -1;
 	auto conn = waitForActivity();
 	if(conn != nullptr) {
 		try {
@@ -38,6 +39,7 @@ void ComServer::handleActivity() {
 						}
 						conn->write(Protocol::ANS_END);
 					}
+					last_changed = -1;
 					break;
 				}
 				case Protocol::COM_CREATE_NG: {
@@ -55,8 +57,10 @@ void ComServer::handleActivity() {
 								conn->write(Protocol::ANS_NAK);
 								conn->write(Protocol::ERR_NG_ALREADY_EXISTS);
 							} else {
-								ngs.push_back(Newsgroup(++ngcounter, ng));
+								Newsgroup n = Newsgroup(++ngcounter, ng);
+								ngs.push_back(n);
 								conn->write(Protocol::ANS_ACK);
+								last_changed = n.get_id();
 							}
 							conn->write(Protocol::ANS_END);
 						}
@@ -76,6 +80,7 @@ void ComServer::handleActivity() {
 							conn->write(Protocol::ANS_DELETE_NG);
 							auto it = remove_if(ngs.begin(), ngs.end(), [nbr](Newsgroup& x){return x.get_id() == nbr;});
 							if(it != ngs.end()){
+								last_changed = it->get_id();
 								ngs.erase(it);
 								conn->write(Protocol::ANS_ACK);
 							} else {
@@ -115,6 +120,7 @@ void ComServer::handleActivity() {
 							conn->write(Protocol::ANS_END);
 						}
 					}
+					last_changed = -1;
 					break;
 				}
 				case Protocol::COM_CREATE_ART: {
@@ -150,6 +156,7 @@ void ComServer::handleActivity() {
 					conn->write(Protocol::ANS_CREATE_ART);
 					auto it = find_if(ngs.begin(), ngs.end(), [id](Newsgroup& x){return x.get_id() == id;});
 					if(it != ngs.end()){
+						last_changed = it->get_id();
 						it->get_articles().push_back(Article(title, author, text, ++(it->get_artcounter())));
 						conn->write(Protocol::ANS_ACK);
 					} else{
@@ -180,6 +187,7 @@ void ComServer::handleActivity() {
 					conn->write(Protocol::ANS_DELETE_ART);
 					auto it = find_if(ngs.begin(), ngs.end(), [group_nbr](Newsgroup& ng){return ng.get_id() == group_nbr;});
 					if(it != ngs.end()){
+						last_changed = it->get_id();
 						auto it2 = remove_if(it->get_articles().begin(), it->get_articles().end(), [article_nbr](Article& a){return a.get_id() == article_nbr;});
 						if(it2 != it->get_articles().end()){
 							conn->write(Protocol::ANS_ACK);
@@ -224,6 +232,7 @@ void ComServer::handleActivity() {
 						conn->write(Protocol::ERR_NG_DOES_NOT_EXIST);
 					}
 					conn->write(Protocol::ANS_END);
+					last_changed = -1;
 					break;
 				}
 			}
@@ -236,6 +245,10 @@ void ComServer::handleActivity() {
 		registerConnection(conn);
 		cout << "New client connects" << endl;
 	}	
+}
+
+int ComServer::last_modified() {
+	return last_changed;
 }
 
 void ComServer::protocol_err(string err) {

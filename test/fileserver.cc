@@ -32,7 +32,10 @@ int main(int argc, char* argv[]){
 
 	while (true) {
 		cs.handleActivity();
-		ngs = cs.get_grps();
+		int ns = cs.last_modified();
+		if (ns != -1) {
+			cout << ns << endl;
+		} 
 
 
 		// Skriv grupperna till fil
