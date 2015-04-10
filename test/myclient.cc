@@ -425,7 +425,7 @@ int main(int argc, char* argv[]) {
 		string reply = read_string(conn);
 		cout << " " << reply << endl;*/
 		cin.clear();
-		cin.ignore(INT_MAX, '\n');
+		//cin.ignore(INT_MAX, '\n');
 
 	}
 }
