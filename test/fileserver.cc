@@ -81,7 +81,16 @@ void process_directory(string directory){
     closedir(dir);
 }
 
-
+void init_vector(vector<Newsgroup>& news) {
+	string h = getenv("HOME");
+	string home = h + "/newsgroups/";
+	auto dir = opendir(home.c_str());
+	while (auto d = readdir(dir)) {
+		while(auto a = readdir(d)){
+			//lägg till rtikel för varje iteration
+		}
+	}
+}
 
 
 int main(int argc, char* argv[]){
