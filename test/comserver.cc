@@ -20,7 +20,7 @@ ComServer::ComServer(int port) : Server(port), ngcounter(0) {}
 ComServer::ComServer(int port, vector<Newsgroup> grps) : Server(port), ngs(grps), ngcounter(grps.size()) {}
 
 void ComServer::handleActivity() {
-	last_changed = -1;
+	last_changed = 0;
 	auto conn = waitForActivity();
 	if(conn != nullptr) {
 		try {
@@ -39,7 +39,7 @@ void ComServer::handleActivity() {
 						}
 						conn->write(Protocol::ANS_END);
 					}
-					last_changed = -1;
+					last_changed = 0;
 					break;
 				}
 				case Protocol::COM_CREATE_NG: {
@@ -78,7 +78,7 @@ void ComServer::handleActivity() {
 							deregisterConnection(conn);
 						} else {
 							conn->write(Protocol::ANS_DELETE_NG);
-							auto it = remove_if(ngs.begin(), ngs.end(), [nbr](Newsgroup& x){return x.get_id() == nbr;});
+							auto it = find_if(ngs.begin(), ngs.end(), [nbr](Newsgroup& x){return x.get_id() == nbr;});
 							if(it != ngs.end()){
 								last_changed = it->get_id();
 								ngs.erase(it);
@@ -120,7 +120,7 @@ void ComServer::handleActivity() {
 							conn->write(Protocol::ANS_END);
 						}
 					}
-					last_changed = -1;
+					last_changed = 0;
 					break;
 				}
 				case Protocol::COM_CREATE_ART: {
@@ -232,7 +232,7 @@ void ComServer::handleActivity() {
 						conn->write(Protocol::ERR_NG_DOES_NOT_EXIST);
 					}
 					conn->write(Protocol::ANS_END);
-					last_changed = -1;
+					last_changed = 0;
 					break;
 				}
 			}
@@ -247,7 +247,7 @@ void ComServer::handleActivity() {
 	}	
 }
 
-int ComServer::last_modified() {
+unsigned int ComServer::last_modified() {
 	return last_changed;
 }
 

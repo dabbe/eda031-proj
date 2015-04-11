@@ -53,8 +53,6 @@ void create_newsgroup(const char* s){
 	string home = h + "/newsgroups/";
 	int s_one = mkdir(home.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 	int s_two = mkdir((home + s).c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-//	cout << "Status for creating root-newsgroup folder: " << s_one << endl;
-//	cout << "Status for creating newsgroup folder: " << s_two << endl;
 }
 
 void deleteArt(const char* path){
@@ -63,47 +61,6 @@ void deleteArt(const char* path){
 		cout << "Error deleting file" << endl;
 	else
 		cout << "File successfully deleted" << endl;
-}
-
-void process_file(string file, string path){
-	cout << "Artikel med id: " << file.c_str() << endl;
-	cout << "Path" << path << endl;
-}
-
-void process_entity(struct dirent* entity, string path)
-{
-    /*if(entity->d_type == DT_DIR){
-        if(entity->d_name[0] == '.'){
-            return;
-        }
-        process_directory(string(entity->d_name));
-        return;
-    }*/
-
-    if(entity->d_type == DT_REG){
-        process_file(string(entity->d_name), path + entity->d_name);
-        return;
-    }
-}
-
-void process_directory(string directory){
-	string h = getenv("HOME");
-	string home = h + "/newsgroups/";
-	string dirToOpen = home + directory;
-    auto dir = opendir(dirToOpen.c_str());
-    string path = dirToOpen + "/";
-    if(NULL == dir){
-        return;
-    }
-
-    auto entity = readdir(dir);
-    while(entity != NULL){
-        process_entity(entity, path);
-        entity = readdir(dir);
-    }
-
-    path.resize(path.length() - 1 - directory.length());
-    closedir(dir);
 }
 
 void init_vector(vector<Newsgroup>& ngs) {
@@ -115,20 +72,17 @@ void init_vector(vector<Newsgroup>& ngs) {
 	int ngcounter = 0;
 	while (auto d = readdir(dir)) {
 		++i;
-		if (i < 3) continue; // bad solution for ignoring systemfolders . and .. 
+		if (i < 3) continue; // ignoring systemfolders . and .. 
 		string ng_name = d->d_name;
 		string ng_dir_name = home + ng_name;
-		//cout << ng_name << endl; // detta funkar, skriver ut namnet på newsgroup
 		Newsgroup ng(++ngcounter, ng_name);
 		auto ng_dir = opendir(ng_dir_name.c_str());
 		int j = 0;
 		while (auto a = readdir(ng_dir)) {
 			++j;
-			if (j < 3) continue; // bad solution for ignoring systemfolders . and .. 
+			if (j < 3) continue; // ignoring systemfolders . and .. 
 			string art_name = a->d_name;
 			string art_dir = ng_dir_name + "/" + art_name;
-			
-			//cout << art_name << endl; // detta funkar, skriver ut id på artikeln
 			ng.get_articles().push_back(readArt(art_dir, art_name));
 			++ng.get_artcounter();
 		}
@@ -137,13 +91,11 @@ void init_vector(vector<Newsgroup>& ngs) {
 	}
 }
 
-
 int main(int argc, char* argv[]){
 	if (argc != 2) {
 		cerr << "Usage: myserver port-number" << endl;
 		exit(1);
 	}
-	
 	int port = -1;
 	try {
 		port = stoi(argv[1]);
@@ -151,12 +103,10 @@ int main(int argc, char* argv[]){
 		cerr << "Wrong port number. " << e.what() << endl;
 		exit(1);
 	}	
-	
 	string h = getenv("HOME");
 	vector<Newsgroup> ngs;
 	init_vector(ngs); //reads from filesystem and imports
 	ComServer cs(port, ngs);
-
 	if (!cs.isInitialized()) {
 		cerr << "Server initialization error." << endl;
 		exit(1);
@@ -164,36 +114,32 @@ int main(int argc, char* argv[]){
 
 	while (true) {
 		cs.handleActivity();
-		int ns = cs.last_modified();
-
-		if (ns != -1) {
-
+		unsigned int last_changed = cs.last_modified();
+		if (last_changed != 0) {
 			string home = h + "/newsgroups/";
 			if (!ngs.empty()) {
-				auto it = find_if(ngs.begin(), ngs.end(), [&ns](Newsgroup& n) {return n.get_id() == ns;});
-				
-				//process_directory(it->get_name());
-				//ta bort alla artiklar i mappen
+				auto it = find_if(ngs.begin(), ngs.end(), [last_changed](Newsgroup& n) {return n.get_id() == last_changed;});
 				if (it != ngs.end()) {
 					auto articles = it->get_articles();
 					for(Article a : articles){
 						deleteArt((home + it->get_name() + "/" + to_string(a.get_id())).c_str());
 					}
-					//rmdir((home + it->get_name()).c_str());
+					cout << home + it->get_name() << endl;
+					if(rmdir((home + it->get_name()).c_str())) cout << "should be deleted" << endl;
 				}
 			}
 			ngs = cs.get_grps();
-			auto it = find_if(ngs.begin(), ngs.end(), [&ns](Newsgroup& n) {return n.get_id() == ns;});
-			auto articles = it->get_articles();
-			create_newsgroup(it->get_name().c_str());
-			home += it->get_name() + "/";
-			for(Article a : articles){
-				createArt(a.get_title(), a.get_author(), a.get_text(), a.get_id(), home);
+			auto it = find_if(ngs.begin(), ngs.end(), [last_changed](Newsgroup& n) {return n.get_id() == last_changed;});
+			if (it != ngs.end()) {
+
+				auto articles = it->get_articles();
+				create_newsgroup(it->get_name().c_str());
+				home += it->get_name() + "/";
+				for(Article a : articles){
+					createArt(a.get_title(), a.get_author(), a.get_text(), a.get_id(), home);
+				}
 			}
 		}
-		
-
-		// Skriv grupperna till fil
 	}
 
 
