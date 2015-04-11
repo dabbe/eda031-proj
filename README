@@ -1,4 +1,4 @@
-CPP 2005 Project, Communication Classes
+CPP 2015 Project, Communication Classes
 ---------------------------------------
 
 - This directory contains the communication classes Connection and Server,
@@ -8,3 +8,7 @@ CPP 2005 Project, Communication Classes
 - The subdirectory 'test' contains the test programs myclient and myserver,
   as defined in the project description, section 5.3.
 - 'make' makes the executables myclient and myserver.
+
+* Köra programmet
+1. Starta servern med kommandot: ./memoryserver <port> eller ./fileserver <port>
+2. Starta klienten med komandot: ./myclient <hostname> <port> (Hostname är localhost om servern har startats på samma dator)
