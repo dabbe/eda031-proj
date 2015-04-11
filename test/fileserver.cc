@@ -17,10 +17,35 @@
 void createArt(string title, string author, string text, int art_nbr, string path){
 	ofstream outfile;
 	outfile.open (path + to_string(art_nbr));
-	outfile << "#" + title;
-	outfile << "#" + author;
-	outfile << "#" + text;
+	outfile << title << endl;
+	outfile << author << endl;
+	outfile << text << endl;
   	outfile.close();
+}
+
+Article readArt(string art_dir, string art_name){
+	ifstream myfile (art_dir);
+	string line;
+	string title, author, text;
+	if (myfile.is_open())
+	{
+		while (getline (myfile,line))
+		{
+			if(title.length() == 0){
+				title = line;
+			}
+			else if(author.length() == 0)
+				author = line;
+			else{
+				text += line + "\n";
+			}
+		}
+		myfile.close();
+	}
+	else cout << "Unable to open file";
+
+	return Article(title, author, text, stoi(art_name));
+
 }
 
 void create_newsgroup(const char* s){
@@ -102,9 +127,10 @@ void init_vector(vector<Newsgroup>& ngs) {
 			if (j < 3) continue; // bad solution for ignoring systemfolders . and .. 
 			string art_name = a->d_name;
 			string art_dir = ng_dir_name + "/" + art_name;
+			
 			//cout << art_name << endl; // detta funkar, skriver ut id på artikeln
-			string s = "hehehe";
-			ng.get_articles().push_back(Article(s, s, s, ++(ng.get_artcounter())));
+			ng.get_articles().push_back(readArt(art_dir, art_name));
+			++ng.get_artcounter();
 		}
 		closedir(ng_dir);
 		ngs.push_back(ng);
