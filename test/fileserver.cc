@@ -81,14 +81,33 @@ void process_directory(string directory){
     closedir(dir);
 }
 
-void init_vector(vector<Newsgroup>& news) {
+void init_vector(vector<Newsgroup>& ngs) {
 	string h = getenv("HOME");
 	string home = h + "/newsgroups/";
 	auto dir = opendir(home.c_str());
+	if (dir == NULL) return; // no newsgroups folder
+	int i = 0;
+	int ngcounter = 0;
 	while (auto d = readdir(dir)) {
-		while(auto a = readdir(d)){
-			//lägg till rtikel för varje iteration
+		++i;
+		if (i < 3) continue; // bad solution for ignoring systemfolders . and .. 
+		string ng_name = d->d_name;
+		string ng_dir_name = home + ng_name;
+		//cout << ng_name << endl; // detta funkar, skriver ut namnet på newsgroup
+		Newsgroup ng(++ngcounter, ng_name);
+		auto ng_dir = opendir(ng_dir_name.c_str());
+		int j = 0;
+		while (auto a = readdir(ng_dir)) {
+			++j;
+			if (j < 3) continue; // bad solution for ignoring systemfolders . and .. 
+			string art_name = a->d_name;
+			string art_dir = ng_dir_name + "/" + art_name;
+			//cout << art_name << endl; // detta funkar, skriver ut id på artikeln
+			string s = "hehehe";
+			ng.get_articles().push_back(Article(s, s, s, ++(ng.get_artcounter())));
 		}
+		closedir(ng_dir);
+		ngs.push_back(ng);
 	}
 }
 
@@ -105,16 +124,17 @@ int main(int argc, char* argv[]){
 	} catch (exception& e) {
 		cerr << "Wrong port number. " << e.what() << endl;
 		exit(1);
-	}
+	}	
 	
-	ComServer cs(port);
+	string h = getenv("HOME");
+	vector<Newsgroup> ngs;
+	init_vector(ngs); //reads from filesystem and imports
+	ComServer cs(port, ngs);
 
 	if (!cs.isInitialized()) {
 		cerr << "Server initialization error." << endl;
 		exit(1);
 	}
-	string h = getenv("HOME");
-	vector<Newsgroup> ngs; // LÄSA IN ALLt
 
 	while (true) {
 		cs.handleActivity();

@@ -17,7 +17,7 @@ using namespace std;
 
 ComServer::ComServer(int port) : Server(port), ngcounter(0) {}
 
-ComServer::ComServer(int port, vector<Newsgroup> grps) : Server(port), ngs(grps), ngcounter(0) {}
+ComServer::ComServer(int port, vector<Newsgroup> grps) : Server(port), ngs(grps), ngcounter(grps.size()) {}
 
 void ComServer::handleActivity() {
 	last_changed = -1;
