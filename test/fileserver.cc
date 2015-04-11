@@ -51,8 +51,8 @@ Article readArt(string art_dir, string art_name){
 void create_newsgroup(const char* s){
 	string h = getenv("HOME");
 	string home = h + "/newsgroups/";
-	int s_one = mkdir(home.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-	int s_two = mkdir((home + s).c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	mkdir(home.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	mkdir((home + s).c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 }
 
 void deleteArt(const char* path){
@@ -124,8 +124,7 @@ int main(int argc, char* argv[]){
 					for(Article a : articles){
 						deleteArt((home + it->get_name() + "/" + to_string(a.get_id())).c_str());
 					}
-					cout << home + it->get_name() << endl;
-					if(rmdir((home + it->get_name()).c_str())) cout << "should be deleted" << endl;
+					rmdir((home + it->get_name()).c_str());
 				}
 			}
 			ngs = cs.get_grps();
