@@ -22,6 +22,12 @@ LDLIBS = -lclientserver
 PROGS = myserver myclient memoryserver fileserver
 
 all: $(PROGS)
+install: $(PROGS); \
+	mv myserver ../../bin/myserver
+	mv myclient ../../bin/myclient
+	mv memoryserver ../../bin/memoryserver
+	mv fileserver ../../bin/fileserver
+	
 
 # Targets rely on implicit rules for compiling and linking
 # The dependency on libclientserver.a is not defined.
@@ -29,6 +35,7 @@ myserver: myserver.o article.o newsgroup.o
 myclient: myclient.o
 memoryserver: memoryserver.o comserver.o article.o newsgroup.o
 fileserver: fileserver.o comserver.o article.o newsgroup.o
+
 
 # Phony targets
 .PHONY: all clean
